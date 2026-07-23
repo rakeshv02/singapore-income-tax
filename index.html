@@ -1,42 +1,154 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Singapore Income Tax Calculator 2025 — YA 2025 & CPF | Tabutility</title>
+  <meta name="description" content="Calculate your Singapore take-home pay for YA 2025. Includes income tax on chargeable income and CPF employee contributions for Singapore residents." />
+  <meta name="keywords" content="singapore income tax calculator, cpf calculator, iras tax 2025, ya 2025, singapore salary calculator, take home pay singapore" />
+  <link rel="canonical" href="https://singapore-income-tax.tabutility.com/" />
+  <meta property="og:title" content="Singapore Income Tax Calculator 2025 — YA 2025 & CPF" />
+  <meta property="og:description" content="Calculate Singapore take-home pay including IRAS income tax and CPF contributions for YA 2025." />
+  <meta property="og:type" content="website" />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🇸🇬</text></svg>" />
+  <meta name="robots" content="index, follow" />
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7039091592734005" crossorigin="anonymous"></script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-78VZWJ5B1W"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-78VZWJ5B1W');</script>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body style="margin:0;background:#f8faff;font-family:'Segoe UI',Arial,sans-serif">
+<div id="root"></div>
+<script type="text/babel">
+//<![CDATA[
+const { useState } = React;
 
-    <!-- ✏️ UPDATE THESE FOR EVERY NEW TOOL -->
-    <title>TOOL NAME — TOOL TAGLINE | Tabutility</title>
-    <meta name="description" content="TOOL DESCRIPTION. No sign-up, runs in your browser." />
-    <meta name="keywords" content="KEYWORD 1, KEYWORD 2, KEYWORD 3, free TOOL NAME" />
-    <link rel="canonical" href="https://SUBDOMAIN.tabutility.com/" />
-    <meta property="og:url" content="https://SUBDOMAIN.tabutility.com/" />
-    <meta property="og:title" content="TOOL NAME — TOOL TAGLINE" />
-    <meta property="og:description" content="TOOL DESCRIPTION. Free, no sign-up." />
-    <meta name="twitter:title" content="TOOL NAME — TOOL TAGLINE" />
-    <meta name="twitter:description" content="TOOL DESCRIPTION. Free, no sign-up." />
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>EMOJI</text></svg>" />
-    <!-- ✏️ END OF SECTION TO UPDATE -->
+// Singapore income tax bands YA 2025
+const SG_BANDS = [
+  { limit: 20000,   rate: 0,      base: 0 },
+  { limit: 30000,   rate: 0.02,   base: 0 },
+  { limit: 40000,   rate: 0.035,  base: 200 },
+  { limit: 80000,   rate: 0.07,   base: 550 },
+  { limit: 120000,  rate: 0.115,  base: 3350 },
+  { limit: 160000,  rate: 0.15,   base: 7950 },
+  { limit: 200000,  rate: 0.18,   base: 13950 },
+  { limit: 240000,  rate: 0.19,   base: 21150 },
+  { limit: 280000,  rate: 0.195,  base: 28750 },
+  { limit: 320000,  rate: 0.20,   base: 36550 },
+  { limit: Infinity,rate: 0.22,   base: 44550 },
+];
 
-    <!-- DO NOT CHANGE ANYTHING BELOW THIS LINE -->
-    <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="Tabutility" />
-    <meta name="twitter:card" content="summary" />
-    <meta name="robots" content="index, follow" />
+function calcSingaporeTax(income) {
+  for (let i = 0; i < SG_BANDS.length; i++) {
+    const b = SG_BANDS[i];
+    const prev = i === 0 ? 0 : SG_BANDS[i-1].limit;
+    if (income <= b.limit) {
+      return b.base + (income - prev) * b.rate;
+    }
+  }
+  return 0;
+}
 
-    <!-- Google AdSense -->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7039091592734005" crossorigin="anonymous"></script>
+// CPF employee rates (age below 55, 2025)
+function calcCPF(monthly) {
+  // Ordinary wages capped at $6,800/month
+  const ow = Math.min(monthly, 6800);
+  // CPF employee rate 20%
+  return ow * 0.20 * 12;
+}
 
-    <!-- Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-78VZWJ5B1W"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-78VZWJ5B1W');
-    </script>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+function calcSingapore(annual, age) {
+  const monthly = annual / 12;
+  const incomeTax = calcSingaporeTax(annual);
+  const cpf = age < 55 ? calcCPF(monthly) : age < 60 ? calcCPF(monthly) * 0.75 : calcCPF(monthly) * 0.625;
+  const total = incomeTax + cpf;
+  const takeHome = annual - total;
+  return { incomeTax, cpf, total, takeHome };
+}
+
+function fmt(n) { return 'S$' + Math.round(n).toLocaleString('en-SG'); }
+function pct(n, gross) { return gross > 0 ? (n / gross * 100).toFixed(1) + '%' : '0%'; }
+
+function Row({ label, value, gross, highlight }) {
+  return (
+    <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'10px 0',borderBottom:'1px solid #f0f0f0'}}>
+      <span style={{fontSize:14,color:highlight?'#1a1a2e':'#6b7280',fontWeight:highlight?700:400}}>{label}</span>
+      <div style={{textAlign:'right'}}>
+        <span style={{fontSize:15,fontWeight:700,color:highlight?'#dc2626':'#1a1a2e'}}>{fmt(value)}</span>
+        <span style={{fontSize:12,color:'#9ca3af',marginLeft:8}}>{pct(value,gross)}</span>
+      </div>
+    </div>
+  );
+}
+
+function App() {
+  const [annual, setAnnual] = useState(80000);
+  const [age, setAge] = useState('u55');
+
+  const ageNum = age === 'u55' ? 40 : age === '55_60' ? 57 : 62;
+  const r = calcSingapore(Number(annual) || 0, ageNum);
+  const g = Number(annual) || 0;
+
+  return (
+    <div style={{maxWidth:520,margin:'0 auto',padding:'0 0 40px'}}>
+      <div style={{background:'#1a1a2e',padding:'12px 20px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+        <a href="https://tabutility.com" style={{color:'#a5b4fc',textDecoration:'none',fontSize:14}}>← All Tools</a>
+        <span style={{color:'#fff',fontWeight:700,fontSize:15}}>⚡ Tabutility</span>
+      </div>
+
+      <div style={{background:'linear-gradient(135deg,#dc2626,#b91c1c)',padding:'28px 20px',textAlign:'center',color:'#fff'}}>
+        <div style={{fontSize:36,marginBottom:8}}>🇸🇬</div>
+        <h1 style={{margin:'0 0 6px',fontSize:22,fontWeight:900}}>Singapore Income Tax Calculator</h1>
+        <p style={{margin:0,fontSize:13,opacity:0.85}}>IRAS Tax · CPF Employee Contribution — YA 2025</p>
+      </div>
+
+      <div style={{padding:'20px'}}>
+        <div style={{background:'#fff',borderRadius:14,padding:'20px',boxShadow:'0 2px 12px rgba(0,0,0,0.06)',marginBottom:16}}>
+          <label style={{fontSize:13,fontWeight:600,color:'#374151',display:'block',marginBottom:6}}>Annual Salary (SGD)</label>
+          <div style={{position:'relative'}}>
+            <span style={{position:'absolute',left:12,top:'50%',transform:'translateY(-50%)',color:'#6b7280',fontWeight:700}}>S$</span>
+            <input type="number" value={annual} onChange={e=>setAnnual(e.target.value)}
+              style={{width:'100%',padding:'11px 12px 11px 36px',borderRadius:10,border:'2px solid #e5e7eb',fontSize:16,boxSizing:'border-box',outline:'none'}} />
+          </div>
+
+          <label style={{fontSize:13,fontWeight:600,color:'#374151',display:'block',margin:'14px 0 6px'}}>Age Group</label>
+          <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
+            {[['u55','Below 55'],['55_60','55 – 59'],['60p','60 & above']].map(([v,l])=>(
+              <button key={v} onClick={()=>setAge(v)}
+                style={{flex:1,padding:'9px 8px',borderRadius:10,border:`2px solid ${age===v?'#dc2626':'#e5e7eb'}`,background:age===v?'#dc2626':'#fff',color:age===v?'#fff':'#374151',fontWeight:600,fontSize:13,cursor:'pointer'}}>
+                {l}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div style={{background:'#fff',borderRadius:14,padding:'20px',boxShadow:'0 2px 12px rgba(0,0,0,0.06)',marginBottom:16}}>
+          <div style={{fontSize:13,fontWeight:700,color:'#6b7280',marginBottom:4,textTransform:'uppercase',letterSpacing:0.5}}>Take-Home Pay</div>
+          <div style={{fontSize:36,fontWeight:900,color:'#dc2626',marginBottom:4}}>{fmt(r.takeHome)}</div>
+          <div style={{fontSize:13,color:'#9ca3af'}}>per year &nbsp;·&nbsp; {fmt(r.takeHome/12)} / month</div>
+        </div>
+
+        <div style={{background:'#fff',borderRadius:14,padding:'20px',boxShadow:'0 2px 12px rgba(0,0,0,0.06)'}}>
+          <div style={{fontSize:13,fontWeight:700,color:'#374151',marginBottom:8}}>Breakdown</div>
+          <Row label="Gross Salary" value={g} gross={g} />
+          <Row label="Income Tax (IRAS)" value={r.incomeTax} gross={g} />
+          <Row label="CPF Employee Contribution" value={r.cpf} gross={g} />
+          <Row label="Total Deductions" value={r.total} gross={g} />
+          <Row label="Net Take-Home" value={r.takeHome} gross={g} highlight />
+        </div>
+
+        <div style={{background:'#fff7ed',borderRadius:12,padding:'16px',marginTop:16,fontSize:13,color:'#b91c1c',lineHeight:1.6}}>
+          <strong>YA 2025 rates:</strong> 0% to S$20K, progressive up to 22% above S$320K. CPF employee rate 20% on ordinary wages capped at S$6,800/month (below 55). CPF contributions are held in your CPF account — not lost. This calculator covers residents only.
+        </div>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+//]]>
+</script>
+</body>
 </html>
